@@ -1,0 +1,2 @@
+aws ec2 create-volume --availability-zone=us-east-2a --size=3 --volume-type=gp2 
+#note the volume id
