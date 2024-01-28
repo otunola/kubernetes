@@ -15,56 +15,36 @@ spec:
         app: vprodb
     spec:
       containers:
-      - name: vprodb
-        image: imranvisualpath/8amysql-db_1:V1
-        volumeMounts:
-        - name: vpro-db-data
-          mountPath: /var/lib/mysql
-        ports:
-        - name: vprodb-port
-          containerPort: 3306
-        env: 
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: app-secret
-              key: db-pass
-        resources:
-          limits:
-            cpu: "1"
-            memory: "1Gi"
-          requests:
-            cpu: "500m"
-            memory: "512Mi"
+       - name: vprodb
+          image: otunsdiary/db
+          volumeMounts:
+            - name: vpro-db-data
+              mountPath: /var/lib/mysql
+          ports:
+          - name: vprodb-port
+            containerPort: 3306
+          env: 
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: db-pass
+
       nodeSelector:
-      containers:
-      - name: vprodb
-        image: imranvisualpath/8amysql-db_1:V1
+        zone: us-east-1a
+      volumes:
+      - name: vpro-db-data
+        awsElasticBlockStore:
+          volumeID: vol-0628ee786c8b6d5d7 # volume id from aws and add tag aws console if not you get permission denied erro. value of the tag should be the name of your cluster
+          fsType: ext4  
+
+      initContainers:    # this is to remove lost+found folder from the volume before the container starts without the mysql will not start
+      - name: busybox
+        image: busybox:latest
+        args: ["rm", "-rf", "/var/lib/mysql/lost+found"]
         volumeMounts:
-        - name: vpro-db-data
-          mountPath: /var/lib/mysql
-        ports:
-        - name: vprodb-port
-          containerPort: 3306
-        env: 
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: app-secret
-              key: db-pass
-    nodeSelector:
-     zone: us-east-2a
-    volumes:
-    - name: vpro-db-data
-      awsElasticBlockStore:
-        volumeID: vol-01aeb7120e92aaf06 # volume id from aws and add tag aws console if not you get permission denied erro. value of the tag should be the name of your cluster
-        fsType: ext4    
-        
-    initContainers:    # this is to remove lost+found folder from the volume before the container starts without the mysql will not start
-    - name: busybox
-      image: busybox:latest
-      args: ["rm", "-rf", "/var/lib/mysql/lost+found"]
-      volumeMounts:
-        - name: vpro-db-data
-          mountPath: /var/lib/mysql    
-        
+          - name: vpro-db-data
+            mountPath: /var/lib/mysql
+
+
+
