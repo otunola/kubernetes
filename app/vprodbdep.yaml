@@ -16,19 +16,19 @@ spec:
     spec:
       containers:
        - name: vprodb
-          image: otunsdiary/db
-          volumeMounts:
-            - name: vpro-db-data
-              mountPath: /var/lib/mysql
-          ports:
+         image: otunsdiary/db
+         volumeMounts:
+          - name: vpro-db-data
+            mountPath: /var/lib/mysql
+         ports:
           - name: vprodb-port
             containerPort: 3306
-          env: 
-            - name: MYSQL_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: db-pass
+         env: 
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: db-pass
 
       nodeSelector:
         zone: us-east-1a
